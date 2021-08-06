@@ -11,6 +11,9 @@ namespace TvHeadendRestApiClientLibrary
     /// <summary>
     /// Provides a library of functions to access the TvHeadend server.
     /// This is free software that I made for myself in my spare time. I offer these freely, without financial intentions. 
+    /// Necessary TvHeadend-Api-Version: 19
+    /// TvHeadend-Version: 4.2.8
+    /// 
     /// Author: Oliver Matle
     /// Date: August, 2021
     /// </summary>
