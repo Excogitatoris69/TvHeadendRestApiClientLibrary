@@ -8,13 +8,27 @@ using System.Web;
 
 namespace TvHeadendRestApiClientLibrary
 {
+    /// <summary>
+    /// Provides a library of functions to access the TvHeadend server.
+    /// This is free software that I made for myself in my spare time. I offer these freely, without financial intentions. 
+    /// Author: Oliver Matle
+    /// Date: August, 2021
+    /// </summary>
+    /// <seealso cref="https://github.com/Excogitatoris69/TvHeadendRestApiClientLibrary"/>
+    /// <seealso cref="https://tvheadend.org/"/>
+    /// <seealso cref="https://www.tvbrowser.org/"/>
     public class TvHeadendLibrary
     {
         private HttpClient tvHeadendHttpclient = null;
         private readonly string defaultLanguage = "und"; // tvheadend language -> "und" = "undetermined"
-        private readonly string defaultcomment = "";  // "Add by ComLiClient4TVH"
+        private readonly string defaultcomment = ""; 
+        public static readonly string RELEASESTRING = "1.0.0 , August 2021";
 
-
+        /// <summary>
+        /// Returns a list of all channels defined in TvHeadend.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <returns></returns>
         public ChannelEntryList GetChannellist(RequestData requestData)
         {
             if (requestData == null)
@@ -22,11 +36,6 @@ namespace TvHeadendRestApiClientLibrary
             requestData.ServerUrlApi = "/api/channel/list";
             var resultString = CallServer(requestData);
 
-            //var options = new JsonSerializerOptions
-            //{
-            //    PropertyNameCaseInsensitive = true
-            //};
-            //ChannelEntryList aChannelEntryList = (ChannelEntryList)JsonSerializer.Deserialize<ChannelEntryList>(resultString, options);
             ChannelEntryList aChannelEntryList = (ChannelEntryList)JsonSerializer.Deserialize<ChannelEntryList>(resultString);
             if (aChannelEntryList == null || aChannelEntryList.Entries.Count == 0)
             {
@@ -35,6 +44,11 @@ namespace TvHeadendRestApiClientLibrary
             return aChannelEntryList;
         }
 
+        /// <summary>
+        /// Returns a list of all languages defined in TvHeadend.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <returns></returns>
         public LanguageEntryList GetLanguagelist(RequestData requestData)
         {
 
@@ -51,6 +65,11 @@ namespace TvHeadendRestApiClientLibrary
             return aLanguageEntryList;
         }
             
+        /// <summary>
+        /// Returns versioninfos about TvHeadend and Rest-API.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <returns></returns>
         public Serverinfo GetServerinfo(RequestData requestData) 
         {
 
@@ -67,6 +86,11 @@ namespace TvHeadendRestApiClientLibrary
             return aServerinfo;
         }
 
+        /// <summary>
+        /// Returns a list of the currently-scheduled recordings.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <returns></returns>
         public DvrUpcomingEntryList GetDvrUpcominglist(RequestData requestData)
         {
             if (requestData == null)
@@ -78,6 +102,11 @@ namespace TvHeadendRestApiClientLibrary
             return aDvrUpcomingEntryList;
         }
 
+        /// <summary>
+        /// Removes a completed recording from storage.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <returns></returns>
         public TvHeadendResponseData RemoveDvrEntry(RequestData requestData)
         {
             DvrUpcomingEntryList list = null;
@@ -120,13 +149,17 @@ namespace TvHeadendRestApiClientLibrary
                 }
             }
             requestData.ServerUrlApi = "/api/dvr/entry/cancel?uuid=" + requestUuid;
-            //var resultString = CallServer(requestData);
+            var resultString = CallServer(requestData);
             //Console.WriteLine(resultString);
             aTvHeadendResponseData.Uuid = requestUuid;
             return aTvHeadendResponseData;
         }
 
-
+        /// <summary>
+        /// Creates a new epg-derived timer.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <returns></returns>
         public TvHeadendResponseData AddDvrEntry(RequestData requestData)
         {
             string dvrConfigUuid = null;
@@ -248,6 +281,12 @@ namespace TvHeadendRestApiClientLibrary
             return aDvrConfigEntryList;
         }
 
+        /// <summary>
+        /// Query the EPG and optionally apply filters.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <param name="epgFilter"></param>
+        /// <returns></returns>
         public EpgEntryList GetEpgEntryList(RequestData requestData, EpgFilter epgFilter)
         {
             if (requestData == null)
@@ -285,46 +324,11 @@ namespace TvHeadendRestApiClientLibrary
         }
 
 
-        private string CallServer2(RequestData requestData, StringContent content)
-        {
-            string result = null;
-            HttpResponseMessage resonse = null;
-
-            if (tvHeadendHttpclient == null)
-            {
-                tvHeadendHttpclient = new HttpClient();
-                var authToken = Encoding.ASCII.GetBytes($"{requestData.UserName}:{requestData.Password}");
-                tvHeadendHttpclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
-            }
-            try
-            {
-                resonse = tvHeadendHttpclient.PostAsync(requestData.ServerUrl + requestData.ServerUrlApi, content).Result;
-            }
-            catch (System.AggregateException e)
-            {
-                throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ". Possibly wrong serverurl or wrong port. Error:" + e.Message);
-            }
-            if (resonse.IsSuccessStatusCode)
-            {
-                var responseContent = resonse.Content;
-                // by calling .Result you are synchronously reading the result
-                result = responseContent.ReadAsStringAsync().Result;
-                //Console.WriteLine("Result:"+ result);
-            }
-            else
-            {
-                switch (resonse.StatusCode)
-                {
-                    case System.Net.HttpStatusCode.Unauthorized:
-                        throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ": Wrong Username or password.");
-                    default:
-                        throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ": " + resonse.StatusCode);
-                }
-            }
-            return result;
-        }
-
-
+        /// <summary>
+        /// Connect to server.
+        /// </summary>
+        /// <param name="requestData"></param>
+        /// <returns></returns>
         private string CallServer(RequestData requestData)
         {
             string result = null;
@@ -364,30 +368,13 @@ namespace TvHeadendRestApiClientLibrary
             return result;
         }
 
-
-        //private string CallServer(RequestData requestData)
-        //{
-        //    string result = null;
-        //    using (var client = new HttpClient())
-        //    {
-        //        var authToken = Encoding.ASCII.GetBytes($"{requestData.UserName}:{requestData.UserPassword}");
-        //        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
-        //        var resonse = client.GetAsync(requestData.ServerUrl + requestData.ServerUrlApi).Result;
-        //        if (resonse.IsSuccessStatusCode)
-        //        {
-        //            var responseContent = resonse.Content;
-        //            // by calling .Result you are synchronously reading the result
-        //            result = responseContent.ReadAsStringAsync().Result;
-        //            //Console.WriteLine("Result:"+ result);
-        //        }
-        //        else
-        //        {
-        //            throw new Exception("Fehler: " + resonse.StatusCode);
-        //        }
-        //    }
-        //    return result;
-        //}
-
+        /// <summary>
+        /// Check for valid DVR-Configurationname
+        /// </summary>
+        /// <param name="requestdata"></param>
+        /// <param name="configname"></param>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
         private bool CheckDvrConfigname(RequestData requestdata, string configname, out string uuid)
         {
             bool result = true;
@@ -411,7 +398,12 @@ namespace TvHeadendRestApiClientLibrary
             return result;
         }
 
-
+        /// <summary>
+        /// Check for valid channelname.
+        /// </summary>
+        /// <param name="requestdata"></param>
+        /// <param name="channelname"></param>
+        /// <returns></returns>
         private bool CheckChannelname(RequestData requestdata, string channelname)
         {
             bool result = false;
@@ -431,7 +423,7 @@ namespace TvHeadendRestApiClientLibrary
         }
 
         /// <summary>
-        /// Check language.
+        /// Check for valid language.
         /// </summary>
         /// <param name="requestdata"></param>
         /// <param name="language"></param>
@@ -454,8 +446,7 @@ namespace TvHeadendRestApiClientLibrary
             return result;
         }
 
-     
-
+       
     }
-    
+
 }
