@@ -3,7 +3,7 @@ namespace TvHeadendRestApiClientLibrary
 {
     public class Command
     {
-        public const string  DVRCREATE = "dvrcreate";
+        public const string DVRCREATE = "dvrcreate";
         public const string DVRREMOVE = "dvrremove";
         public const string DVRLIST = "dvrlist";
         public const string DVRCONFIGLIST = "dvrconfiglist";

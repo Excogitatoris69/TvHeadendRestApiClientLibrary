@@ -23,6 +23,13 @@ namespace TvHeadendRestApiClientLibrary
         [JsonPropertyName("stop")]
         public long Stop { get; set; }
 
+        [JsonPropertyName("start_real")]
+        public long StartReal { get; set; }
+
+        [JsonPropertyName("stop_real")]
+        public long StopReal { get; set; }
+
+
         [JsonPropertyName("pri")]
         public int Priority { get; set; }
 

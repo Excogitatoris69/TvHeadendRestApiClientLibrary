@@ -25,7 +25,16 @@ namespace TvHeadendRestApiClientLibrary
         private HttpClient tvHeadendHttpclient = null;
         private readonly string defaultLanguage = "und"; // tvheadend language -> "und" = "undetermined"
         private readonly string defaultcomment = ""; 
-        public static readonly string RELEASESTRING = "1.0.0 , August 2021";
+        public static readonly string RELEASESTRING = "1.1.0 , Juli 2022";
+
+        string APIPATH_CHANNELLIST = "/api/channel/list";
+        string APIPATH_LANGUAGELIST = "/api/language/list";
+        string APIPATH_SERVERINFO = "/api/serverinfo";
+        string APIPATH_GRIDUPCOMING = "/api/dvr/entry/grid_upcoming";
+        string APIPATH_DVRCANCEL = "/api/dvr/entry/cancel";
+        string APIPATH_DVRCREATE = "/api/dvr/entry/create";
+        string APIPATH_DVRCONFIGGRID = "/api/dvr/config/grid";
+        string APIPATH_EPGEVENTSGRID = "/api/epg/events/grid";
 
         /// <summary>
         /// Returns a list of all channels defined in TvHeadend.
@@ -36,7 +45,7 @@ namespace TvHeadendRestApiClientLibrary
         {
             if (requestData == null)
                 throw new NullReferenceException("RequestData is null.");
-            requestData.ServerUrlApi = "/api/channel/list";
+            requestData.ServerUrlApi = APIPATH_CHANNELLIST;
             var resultString = CallServer(requestData);
 
             ChannelEntryList aChannelEntryList = (ChannelEntryList)JsonSerializer.Deserialize<ChannelEntryList>(resultString);
@@ -57,7 +66,7 @@ namespace TvHeadendRestApiClientLibrary
 
             if (requestData == null)
                 throw new NullReferenceException("RequestData is null.");
-            requestData.ServerUrlApi = "/api/language/list";
+            requestData.ServerUrlApi = APIPATH_LANGUAGELIST;
             var resultString = CallServer(requestData);
             //Console.WriteLine(resultString);
             LanguageEntryList aLanguageEntryList = (LanguageEntryList)JsonSerializer.Deserialize<LanguageEntryList>(resultString);
@@ -78,7 +87,7 @@ namespace TvHeadendRestApiClientLibrary
 
             if (requestData == null)
                 throw new NullReferenceException(Messages.MESSAGE_INVALID_REQUESTDATA + ". RequestData is null.");
-            requestData.ServerUrlApi = "/api/serverinfo";
+            requestData.ServerUrlApi = APIPATH_SERVERINFO;
             var resultString = CallServer(requestData);
             //Console.WriteLine(resultString);
             Serverinfo aServerinfo = (Serverinfo)JsonSerializer.Deserialize<Serverinfo>(resultString);
@@ -98,7 +107,7 @@ namespace TvHeadendRestApiClientLibrary
         {
             if (requestData == null)
                 throw new NullReferenceException("RequestData is null.");
-            requestData.ServerUrlApi = "/api/dvr/entry/grid_upcoming";
+            requestData.ServerUrlApi = APIPATH_GRIDUPCOMING;
             var resultString = CallServer(requestData);
             //Console.WriteLine(resultString);
             DvrUpcomingEntryList aDvrUpcomingEntryList = (DvrUpcomingEntryList)JsonSerializer.Deserialize<DvrUpcomingEntryList>(resultString);
@@ -151,7 +160,7 @@ namespace TvHeadendRestApiClientLibrary
                     throw new TvHeadendException(Messages.MESSAGE_UNKNOWN_DVR_ENTRY);
                 }
             }
-            requestData.ServerUrlApi = "/api/dvr/entry/cancel?uuid=" + requestUuid;
+            requestData.ServerUrlApi = APIPATH_DVRCANCEL + "?uuid=" + requestUuid;
             var resultString = CallServer(requestData);
             //Console.WriteLine(resultString);
             aTvHeadendResponseData.Uuid = requestUuid;
@@ -256,12 +265,14 @@ namespace TvHeadendRestApiClientLibrary
 
             var options = new JsonSerializerOptions
             {
-                IgnoreNullValues = true
+                IgnoreNullValues = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             };
             string jsonDvrRequestString = JsonSerializer.Serialize(dvrAddEntry, options);
             //Console.WriteLine(jsonDvrRequestString);
             string encodedUrl = HttpUtility.UrlEncode(jsonDvrRequestString);
-            requestData.ServerUrlApi = "/api/dvr/entry/create?conf=" + encodedUrl;
+            requestData.ServerUrlApi = APIPATH_DVRCREATE + "?conf=" + encodedUrl;
+            
             var resultString = CallServer(requestData);
             //Console.WriteLine(resultString);
             aTvHeadendResponseData = (TvHeadendResponseData)JsonSerializer.Deserialize<TvHeadendResponseData>(resultString);
@@ -277,7 +288,7 @@ namespace TvHeadendRestApiClientLibrary
         {
             if (requestData == null)
                 throw new NullReferenceException("RequestData is null.");
-            requestData.ServerUrlApi = "/api/dvr/config/grid";
+            requestData.ServerUrlApi = APIPATH_DVRCONFIGGRID;
             var resultString = CallServer(requestData);
             //Console.WriteLine(resultString);
             DvrConfigEntryList aDvrConfigEntryList = (DvrConfigEntryList)JsonSerializer.Deserialize<DvrConfigEntryList>(resultString);
@@ -298,10 +309,11 @@ namespace TvHeadendRestApiClientLibrary
             //set filter
             if(epgFilter == null)
             {
-                requestData.ServerUrlApi = "/api/epg/events/grid";
+                requestData.ServerUrlApi = APIPATH_EPGEVENTSGRID;
             }else
             {
-                filterString = new StringBuilder("/api/epg/events/grid?");
+                filterString = new StringBuilder(APIPATH_EPGEVENTSGRID);
+                filterString.Append('?');
                 if (epgFilter.Start > 0) //default is 0
                     filterString.Append("start=").Append(epgFilter.Start);
                 if (epgFilter.Limit > 0) //default is 50
