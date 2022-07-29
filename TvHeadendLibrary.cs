@@ -25,7 +25,7 @@ namespace TvHeadendRestApiClientLibrary
         private HttpClient tvHeadendHttpclient = null;
         private readonly string defaultLanguage = "und"; // tvheadend language -> "und" = "undetermined"
         private readonly string defaultcomment = ""; 
-        public static readonly string RELEASESTRING = "1.1.0 , Juli 2022";
+        public static readonly string RELEASESTRING = "1.1.1 , Juli 2022";
 
         string APIPATH_CHANNELLIST = "/api/channel/list";
         string APIPATH_LANGUAGELIST = "/api/language/list";
@@ -203,10 +203,10 @@ namespace TvHeadendRestApiClientLibrary
             {
                 throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ". Title not set or empty.");
             }
-            if (requestData.Description == null || requestData.Description.Length == 0)
-            {
-                throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ". Description not set or empty.");
-            }
+            //if (requestData.Description == null || requestData.Description.Length == 0)
+            //{
+            //    throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ". Description not set or empty.");
+            //}
             if (requestData.Starttime == 0)
             {
                 throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ". Starttime not set.");
