@@ -22,6 +22,6 @@ namespace TvHeadendRestApiClientLibrary
         public string DvrProfileName { get; set; }
         public string Comment { get; set; }
         public Priority Priority { get; set; }
-
-}
+        public string StreamplayerPath { get; set; }
+    }
 }

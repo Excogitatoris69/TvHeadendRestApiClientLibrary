@@ -10,5 +10,6 @@ namespace TvHeadendRestApiClientLibrary
         public const string CHANNELLIST = "channellist";
         public const string LANGUAGELIST = "languagelist";
         public const string SERVERINFO = "serverinfo";
+        public const string LIVESTREAM = "livestream";
     }
 }

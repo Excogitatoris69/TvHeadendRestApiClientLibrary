@@ -12,5 +12,6 @@
         public const string MESSAGE_DVR_CREATE_ENTRY_UNSUCCESSFUL = "DVR Create entry unsuccessful";
         public const string MESSAGE_DVR_REMOVE_ENTRY_UNSUCCESSFUL = "DVR Remove entry unsuccessful";
         public const string MESSAGE_INVALID_TIME = "Invalid time";
+        public const string MESSAGE_PATH_NOT_FOUND = "Path not found";
     }
 }

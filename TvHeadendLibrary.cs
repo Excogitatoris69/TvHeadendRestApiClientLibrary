@@ -25,7 +25,7 @@ namespace TvHeadendRestApiClientLibrary
         private HttpClient tvHeadendHttpclient = null;
         private readonly string defaultLanguage = "und"; // tvheadend language -> "und" = "undetermined"
         private readonly string defaultcomment = ""; 
-        public static readonly string RELEASESTRING = "1.1.1 , Juli 2022";
+        public static readonly string RELEASESTRING = "1.2 , Juli 2022";
 
         string APIPATH_CHANNELLIST = "/api/channel/list";
         string APIPATH_LANGUAGELIST = "/api/language/list";
@@ -336,6 +336,46 @@ namespace TvHeadendRestApiClientLibrary
             Console.WriteLine(filterString.ToString());
             EpgEntryList aEpgEntryList = (EpgEntryList)JsonSerializer.Deserialize<EpgEntryList>(resultString);
             return aEpgEntryList;
+        }
+
+        public string getLivestreamUrl(RequestData requestData)
+        {
+            string streamUrl = null;
+            string channelUuid = null;
+            string protocol = null;
+
+            if (requestData == null)
+                throw new TvHeadendException(Messages.MESSAGE_INVALID_REQUESTDATA + ". RequestData is null.");
+            
+            //search channel-uuid of channelname
+            ChannelEntryList list = GetChannellist(requestData);
+            if (requestData.ChannelName != null && requestData.ChannelName.Trim().Length > 0 && list.Entries != null)
+            {
+                foreach (ChannelEntry channelEntry in list.Entries)
+                {
+                    if (channelEntry.Name.Equals(requestData.ChannelName))
+                    {
+                        channelUuid = channelEntry.Uuid;
+                        break;
+                    }
+                }
+            }else
+            {
+                throw new TvHeadendException(Messages.MESSAGE_INVALID_CHANNELNAME + ":" + requestData.ChannelName);
+            }
+            if (channelUuid != null)
+            {
+                if (requestData.ServerUrl.StartsWith("http"))
+                {
+                    protocol = "http";
+                }else if (requestData.ServerUrl.StartsWith("https"))
+                {
+                    protocol = "https";
+                }
+                streamUrl = string.Format("{0}://{1}:{2}@{3}/stream/channel/{4}",
+                        protocol, requestData.UserName, requestData.Password,requestData.ServerUrl.Replace(protocol+"://", ""), channelUuid);
+            }
+            return streamUrl;
         }
 
 
